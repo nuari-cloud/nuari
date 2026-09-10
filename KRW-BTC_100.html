@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KRW-BTC 100건 데이터 시각화 | 2026 청년센터 강북 2주차 실습 1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-[#0D1117] text-[#C9D1D9] min-h-screen p-4 sm:p-6 lg:p-8">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Header Banner -->
+    <header class="bg-[#161B22] border border-[#30363D] rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-[#E65100]/20 text-[#FF9800] text-xs font-bold font-mono border border-[#FF9800]/30">
+            2026 청년센터 강북 강의
+          </span>
+          <span class="px-2 py-0.5 rounded-md bg-[#21262D] text-[#8B949E] text-xs font-mono">
+            2주차 실습 1
+          </span>
+          <span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-mono flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            LIVE API / 100 RECORDS
+          </span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-black text-white flex items-center gap-2 tracking-tight">
+          <span>비트코인 (KRW-BTC) 100건 캔들 데이터 분석 및 시각화</span>
+        </h1>
+        <p class="text-xs sm:text-sm text-[#8B949E] mt-1">
+          OpenAPI 기반 실시간 데이터 연동 및 100건 캔들 시각화 웹 인터페이스 실습 과제
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2 self-stretch sm:self-auto">
+        <button id="refreshBtn" class="flex-1 sm:flex-none px-4 py-2 bg-[#238636] hover:bg-[#2EA043] text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-md">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>데이터 새로고침</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-[#161B22] border border-[#30363D] rounded-xl p-4">
+        <span class="text-xs text-[#8B949E] font-medium block mb-1">현재가 (종가)</span>
+        <div id="currentPrice" class="text-lg sm:text-2xl font-mono font-bold text-white tracking-tight">로딩 중...</div>
+        <span id="priceDiff" class="text-xs font-mono font-medium mt-1 inline-block">-</span>
+      </div>
+      <div class="bg-[#161B22] border border-[#30363D] rounded-xl p-4">
+        <span class="text-xs text-[#8B949E] font-medium block mb-1">100건 최고가 (High)</span>
+        <div id="maxPrice" class="text-lg sm:text-2xl font-mono font-bold text-[#F85149] tracking-tight">-</div>
+        <span class="text-[11px] text-[#8B949E] mt-1 block">기간 내 최고점</span>
+      </div>
+      <div class="bg-[#161B22] border border-[#30363D] rounded-xl p-4">
+        <span class="text-xs text-[#8B949E] font-medium block mb-1">100건 최저가 (Low)</span>
+        <div id="minPrice" class="text-lg sm:text-2xl font-mono font-bold text-[#58A6FF] tracking-tight">-</div>
+        <span class="text-[11px] text-[#8B949E] mt-1 block">기간 내 최저점</span>
+      </div>
+      <div class="bg-[#161B22] border border-[#30363D] rounded-xl p-4">
+        <span class="text-xs text-[#8B949E] font-medium block mb-1">수집 데이터 건수</span>
+        <div class="text-lg sm:text-2xl font-mono font-bold text-[#E65100] tracking-tight">100건</div>
+        <span class="text-[11px] text-[#8B949E] mt-1 block">일봉 (Day Candles)</span>
+      </div>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="bg-[#161B22] border border-[#30363D] rounded-2xl p-5 sm:p-6 shadow-xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span>KRW-BTC 100일 추이 시각화 차트</span>
+          </h2>
+          <p class="text-xs text-[#8B949E]">최근 100일간의 일별 종가 및 변동 추세</p>
+        </div>
+        <div class="flex items-center gap-3 text-xs font-mono text-[#8B949E]">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-[#FF9800]"></span> 종가 추세</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-[#238636]/40 border border-[#238636]"></span> 상승</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-[#DA3633]/40 border border-[#DA3633]"></span> 하락</span>
+        </div>
+      </div>
+
+      <div class="relative w-full h-72 sm:h-80 bg-[#0D1117] rounded-xl border border-[#21262D] p-3 overflow-hidden">
+        <canvas id="chartCanvas" class="w-full h-full block"></canvas>
+      </div>
+    </div>
+
+    <!-- 100 Records Table -->
+    <div class="bg-[#161B22] border border-[#30363D] rounded-2xl p-5 sm:p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-base font-bold text-white">KRW-BTC 최근 100건 원천 데이터 목록</h2>
+          <p class="text-xs text-[#8B949E]">OpenAPI를 통해 정제 및 구조화된 캔들 데이터</p>
+        </div>
+        <span id="dataStatusBadge" class="text-xs px-2.5 py-1 rounded-md bg-[#21262D] text-[#58A6FF] font-mono">
+          데이터 준비 완료
+        </span>
+      </div>
+
+      <div class="overflow-x-auto border border-[#30363D] rounded-xl max-h-96 overflow-y-auto">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-[#21262D] text-[#8B949E] sticky top-0 uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="p-3">#</th>
+              <th class="p-3">일자 (KST)</th>
+              <th class="p-3 text-right">시가 (Open)</th>
+              <th class="p-3 text-right">고가 (High)</th>
+              <th class="p-3 text-right">저가 (Low)</th>
+              <th class="p-3 text-right">종가 (Close)</th>
+              <th class="p-3 text-right">거래량 (BTC)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-[#21262D] text-[#C9D1D9]">
+            <tr>
+              <td colspan="7" class="p-8 text-center text-[#8B949E]">데이터를 불러오는 중입니다...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer Note -->
+    <footer class="text-center text-xs text-[#8B949E] pt-4 pb-8">
+      2026 청년센터 강북 역량강화 과정 2주차 실습 1 과제물 | 포트폴리오 Live Demo 연동용 웹 인터페이스
+    </footer>
+
+  </div>
+
+  <script>
+    let candleData = [];
+
+    // Fallback data generator if Upbit API CORS/network fails
+    function generateFallbackCandles() {
+      const data = [];
+      let basePrice = 135000000;
+      const now = new Date();
+      for (let i = 0; i < 100; i++) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const change = (Math.random() - 0.49) * 4000000;
+        basePrice = Math.max(90000000, basePrice + change);
+        const high = basePrice + Math.random() * 2500000;
+        const low = basePrice - Math.random() * 2500000;
+        const open = low + Math.random() * (high - low);
+        const close = basePrice;
+        const volume = (Math.random() * 800 + 200).toFixed(4);
+
+        data.push({
+          candle_date_time_kst: d.toISOString().slice(0, 10),
+          opening_price: Math.round(open),
+          high_price: Math.round(high),
+          low_price: Math.round(low),
+          trade_price: Math.round(close),
+          candle_acc_trade_volume: parseFloat(volume)
+        });
+      }
+      return data;
+    }
+
+    async function loadData() {
+      const statusBadge = document.getElementById('dataStatusBadge');
+      statusBadge.textContent = '데이터 수신 중...';
+      
+      try {
+        const res = await fetch('https://api.upbit.com/v1/candles/days?market=KRW-BTC&count=100');
+        if (!res.ok) throw new Error('API 응답 오류');
+        candleData = await res.json();
+        statusBadge.textContent = '실시간 Upbit API 연동 성공 (100건)';
+        statusBadge.className = 'text-xs px-2.5 py-1 rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono';
+      } catch (err) {
+        console.warn('API 연동 실패 (오프라인/CORS 대체 데이터 사용):', err);
+        candleData = generateFallbackCandles();
+        statusBadge.textContent = '실습 시뮬레이션 데이터 연동 완료 (100건)';
+        statusBadge.className = 'text-xs px-2.5 py-1 rounded-md bg-[#21262D] text-[#FF9800] border border-[#FF9800]/30 font-mono';
+      }
+
+      renderMetrics();
+      renderChart();
+      renderTable();
+    }
+
+    function formatKRW(val) {
+      return Number(val).toLocaleString('ko-KR') + '원';
+    }
+
+    function renderMetrics() {
+      if (!candleData.length) return;
+      const latest = candleData[0];
+      const prev = candleData[1] || latest;
+      const diff = latest.trade_price - prev.trade_price;
+      const diffRate = ((diff / prev.trade_price) * 100).toFixed(2);
+
+      document.getElementById('currentPrice').textContent = formatKRW(latest.trade_price);
+      const diffEl = document.getElementById('priceDiff');
+      if (diff >= 0) {
+        diffEl.textContent = `▲ +${Number(diff).toLocaleString('ko-KR')}원 (+${diffRate}%)`;
+        diffEl.className = 'text-xs font-mono font-medium mt-1 inline-block text-emerald-400';
+      } else {
+        diffEl.textContent = `▼ ${Number(diff).toLocaleString('ko-KR')}원 (${diffRate}%)`;
+        diffEl.className = 'text-xs font-mono font-medium mt-1 inline-block text-[#F85149]';
+      }
+
+      const highs = candleData.map(c => c.high_price);
+      const lows = candleData.map(c => c.low_price);
+      document.getElementById('maxPrice').textContent = formatKRW(Math.max(...highs));
+      document.getElementById('minPrice').textContent = formatKRW(Math.min(...lows));
+    }
+
+    function renderChart() {
+      const canvas = document.getElementById('chartCanvas');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      const width = rect.width;
+      const height = rect.height;
+      ctx.clearRect(0, 0, width, height);
+
+      // Data is latest-first, reverse for timeline left-to-right
+      const chronological = [...candleData].reverse();
+      const prices = chronological.map(c => c.trade_price);
+      const min = Math.min(...prices) * 0.98;
+      const max = Math.max(...prices) * 1.02;
+
+      // Draw horizontal grid
+      ctx.strokeStyle = '#21262D';
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 4; i++) {
+        const y = (height / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(width - 10, y);
+        ctx.stroke();
+
+        const gridVal = max - ((max - min) / 5) * i;
+        ctx.fillStyle = '#6E7681';
+        ctx.font = '10px monospace';
+        ctx.fillText((gridVal / 1000000).toFixed(1) + 'M', 2, y + 3);
+      }
+
+      // Draw trend gradient area & line
+      const stepX = (width - 60) / (chronological.length - 1);
+      ctx.beginPath();
+      chronological.forEach((c, idx) => {
+        const x = 50 + idx * stepX;
+        const y = height - 20 - ((c.trade_price - min) / (max - min)) * (height - 40);
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+
+      ctx.strokeStyle = '#FF9800';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Close path for soft fill
+      ctx.lineTo(50 + (chronological.length - 1) * stepX, height - 20);
+      ctx.lineTo(50, height - 20);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, 'rgba(255, 152, 0, 0.25)');
+      grad.addColorStop(1, 'rgba(255, 152, 0, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      candleData.forEach((c, idx) => {
+        const isUp = c.trade_price >= c.opening_price;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-[#1C2128] transition-colors';
+        tr.innerHTML = `
+          <td class="p-3 text-[#6E7681]">${idx + 1}</td>
+          <td class="p-3 text-white font-medium">${c.candle_date_time_kst.slice(0, 10)}</td>
+          <td class="p-3 text-right">${Number(c.opening_price).toLocaleString()}</td>
+          <td class="p-3 text-right text-[#F85149]">${Number(c.high_price).toLocaleString()}</td>
+          <td class="p-3 text-right text-[#58A6FF]">${Number(c.low_price).toLocaleString()}</td>
+          <td class="p-3 text-right font-bold ${isUp ? 'text-emerald-400' : 'text-[#F85149]'}">${Number(c.trade_price).toLocaleString()}</td>
+          <td class="p-3 text-right text-[#8B949E]">${Number(c.candle_acc_trade_volume).toFixed(3)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadData);
+    window.addEventListener('resize', renderChart);
+    loadData();
+  </script>
+</body>
+</html>
