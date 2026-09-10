@@ -150,30 +150,25 @@ export default function HeroSection({ onOpenResume }: HeroSectionProps) {
                 </div>
 
                 {/* Portrait & Graphic Representation */}
-                <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden mb-4 bg-linear-to-br from-[#F5F4F0] to-[#EAE8E1] border border-[#EAE8E2] flex flex-col items-center justify-center text-center p-4">
-                  {/* Stylized Avatar Illustration */}
+                <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden mb-4 bg-linear-to-br from-[#F5F4F0] to-[#EAE8E1] border border-[#EAE8E2] flex flex-col items-center justify-center text-center p-3 sm:p-4">
+                  {/* Staff Photo */}
                   <div className="relative mb-2">
-                    <div className="w-20 h-20 rounded-full bg-white border-2 border-[#D5D3CB] p-1 shadow-xs flex items-center justify-center overflow-hidden">
-                      {/* Stylized portrait SVG */}
-                      <svg viewBox="0 0 80 80" className="w-full h-full text-[#404040]">
-                        <circle cx="40" cy="40" r="38" fill="#FBFBFA" />
-                        {/* Head */}
-                        <ellipse cx="40" cy="32" rx="14" ry="16" fill="#F0C7A6" />
-                        {/* Hair */}
-                        <path d="M24 30 C24 16, 56 16, 56 30 C56 22, 50 18, 40 18 C30 18, 24 22, 24 30 Z" fill="#2E241E" />
-                        <path d="M23 30 C23 44, 27 48, 30 48 C28 40, 27 34, 27 30 Z" fill="#2E241E" />
-                        <path d="M57 30 C57 44, 53 48, 50 48 C52 40, 53 34, 53 30 Z" fill="#2E241E" />
-                        {/* Bangs */}
-                        <path d="M26 26 Q40 22 54 26 Q48 19 40 19 Q32 19 26 26 Z" fill="#2E241E" />
-                        {/* Shoulders & Jacket */}
-                        <path d="M16 74 C16 54, 25 48, 40 48 C55 48, 64 54, 64 74 Z" fill="#3D4552" />
-                        {/* Inner shirt collar */}
-                        <polygon points="34,48 40,58 46,48" fill="#FFFFFF" />
-                        {/* ID card ribbon on chest */}
-                        <path d="M38 58 L42 58 L41 74 L39 74 Z" fill="#E65100" />
-                      </svg>
+                    <div className="w-20 h-24 sm:w-22 sm:h-28 rounded-lg bg-white border-2 border-[#D5D3CB] p-0.5 shadow-xs flex items-center justify-center overflow-hidden">
+                      <img
+                        src="/assets/aistudio/profile.jpg"
+                        alt="김민서 실무자 프로필 사진"
+                        className="w-full h-full object-cover object-top rounded-md"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src =
+                            'https://raw.githubusercontent.com/nuari-cloud/nuari/baa5202bcc4ddbc98143f4d53026b43dd0792efc/IMG_9900.JPG';
+                        }}
+                      />
                     </div>
-                    <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white" title="Active" />
+                    <span
+                      className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-xs"
+                      title="Active"
+                    />
                   </div>
 
                   <span className="text-xs font-semibold text-[#262626]">
